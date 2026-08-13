@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/clases")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class ClaseController {
 
     @Autowired
@@ -29,6 +28,7 @@ public class ClaseController {
     private TurnoService turnoService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<ClaseInfoDto>> getAllClases() {
         List<Clase> clases = claseService.findAll();
         List<ClaseInfoDto> clasesDto = clases.stream()
@@ -38,6 +38,7 @@ public class ClaseController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<ClaseInfoDto> getClaseById(@PathVariable Long id) {
         Clase clase = claseService.findById(id);
         ClaseInfoDto response = new ClaseInfoDto(clase);
@@ -45,6 +46,7 @@ public class ClaseController {
     }
 
     @GetMapping("/turno/{turnoId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<ClaseInfoDto>> getClasesByTurnoId(@PathVariable Long turnoId) {
         List<Clase> clases = claseService.findByTurnoId(turnoId);
         List<ClaseInfoDto> clasesDto = clases.stream()
@@ -54,6 +56,7 @@ public class ClaseController {
     }
 
     @GetMapping("/fecha")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<ClaseInfoDto>> getClasesByFecha(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         List<Clase> clases = claseService.findByFechaOrderByHora(fecha);
@@ -64,6 +67,7 @@ public class ClaseController {
     }
 
     @GetMapping("/periodo")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<ClaseDto>> getClasesByPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
@@ -75,6 +79,7 @@ public class ClaseController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<ClaseDto>> getClasesWithAsistenciaByUsuarioId(
             @PathVariable Long usuarioId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
@@ -88,6 +93,7 @@ public class ClaseController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createClase(@Valid @RequestBody ClaseDto claseDto) {
         try {
             Clase clase = convertToEntity(claseDto);
@@ -101,6 +107,7 @@ public class ClaseController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ClaseDto> updateClase(
             @PathVariable Long id,
             @Valid @RequestBody ClaseDto claseDto) {
@@ -111,6 +118,7 @@ public class ClaseController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteClase(@PathVariable Long id) {
         try {
             claseService.deleteById(id);
@@ -123,6 +131,7 @@ public class ClaseController {
     }
 
     @GetMapping("/estadisticas/periodo")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Long> getEstadisticasAsistenciasPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {

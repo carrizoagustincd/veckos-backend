@@ -7,8 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,6 +29,4 @@ public class RegisterDto {
     @NotBlank(message = "El correo electrónico es obligatorio")
     @Email(message = "El formato del correo electrónico no es válido")
     private String email;
-
-    private Set<String> roles;
 }

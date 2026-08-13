@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -20,7 +21,6 @@ import java.util.Set;
 
 @RestController
 @RequestMapping("/api/inscripciones")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class InscripcionController {
 
     @Autowired
@@ -36,6 +36,7 @@ public class InscripcionController {
     private TurnoService turnoService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<InscripcionInfoDto>> getAllInscripciones() {
         List<Inscripcion> inscripciones = inscripcionService.findAll();
         List<InscripcionInfoDto> response = inscripciones.stream().map(InscripcionInfoDto::new).toList();
@@ -43,6 +44,7 @@ public class InscripcionController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<InscripcionInfoDto> getInscripcionById(@PathVariable Long id) {
         Inscripcion inscripcion = inscripcionService.findById(id);
         InscripcionInfoDto response = new InscripcionInfoDto(inscripcion);
@@ -50,6 +52,7 @@ public class InscripcionController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<InscripcionInfoDto>> getInscripcionesByUsuarioId(@PathVariable Long usuarioId) {
         List<Inscripcion> inscripciones = inscripcionService.findByUsuarioId(usuarioId);
         List<InscripcionInfoDto> response = inscripciones.stream().map(InscripcionInfoDto::new).toList();
@@ -57,6 +60,7 @@ public class InscripcionController {
     }
 
     @GetMapping("/usuario/{usuarioId}/activa")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<?> getInscripcionActivaByUsuarioId(@PathVariable Long usuarioId) {
         return inscripcionService.findInscripcionActivaByUsuarioId(usuarioId)
                 .map(ResponseEntity::ok)
@@ -64,6 +68,7 @@ public class InscripcionController {
     }
 
     @GetMapping("/por-estado/{estado}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<InscripcionInfoDto>> getInscripcionesByEstado(
             @PathVariable Inscripcion.EstadoPago estado) {
         List<Inscripcion> inscripciones = inscripcionService.findByEstadoPago(estado);
@@ -72,6 +77,7 @@ public class InscripcionController {
     }
 
     @GetMapping("/por-vencimiento")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<InscripcionInfoDto>> getInscripcionesPorVencimiento(
             @RequestParam LocalDate fechaInicio,
             @RequestParam LocalDate fechaFin) {
@@ -81,6 +87,7 @@ public class InscripcionController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<InscripcionInfoDto> createInscripcion(@Valid @RequestBody InscripcionCrearDto inscripcionDto) {
         try {
             // Convertir DTO a entidad
@@ -131,6 +138,7 @@ public class InscripcionController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateInscripcion(@PathVariable Long id, @RequestBody Inscripcion inscripcionDetails) {
         try {
             Inscripcion updatedInscripcion = inscripcionService.update(id, inscripcionDetails);
@@ -143,6 +151,7 @@ public class InscripcionController {
     }
 
     @PostMapping("/{id}/renovar")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> renovarInscripcion(@PathVariable Long id) {
         try {
             Inscripcion inscripcionRenovada = inscripcionService.renovarInscripcion(id);
@@ -156,6 +165,7 @@ public class InscripcionController {
     }
 
     @PostMapping("/{id}/renovar-con-cambios")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> renovarInscripcionConCambios(
             @PathVariable Long id,
             @RequestBody InscripcionCrearDto inscripcionDto) {
@@ -205,18 +215,21 @@ public class InscripcionController {
     }
 
     @PostMapping("/{id}/completar")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> completarInscripcionTesting(@PathVariable Long id){
         this.inscripcionService.completarInscripcion(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteInscripcion(@PathVariable Long id) {
         inscripcionService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/actualizar-estados")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> actualizarEstadosPagos() {
         inscripcionService.actualizarEstadosPagos();
         return ResponseEntity.ok().build();

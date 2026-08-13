@@ -19,7 +19,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -80,28 +79,9 @@ public class AuthService {
         usuario.setEmail(registerDto.getEmail());
         usuario.setPassword(passwordEncoder.encode(registerDto.getPassword()));
 
-        Set<String> strRoles = registerDto.getRoles();
-        Set<Rol> roles = new HashSet<>();
-
-        if (strRoles == null) {
-            Rol userRole = rolRepository.findByNombre(Rol.RolNombre.ROLE_OPERADOR)
-                    .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Rol adminRole = rolRepository.findByNombre(Rol.RolNombre.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
-                        roles.add(adminRole);
-                        break;
-                    default:
-                        Rol userRole = rolRepository.findByNombre(Rol.RolNombre.ROLE_OPERADOR)
-                                .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
-                        roles.add(userRole);
-                }
-            });
-        }
+        Rol operatorRole = rolRepository.findByNombre(Rol.RolNombre.ROLE_OPERADOR)
+                .orElseThrow(() -> new RuntimeException("Error: Rol no encontrado."));
+        Set<Rol> roles = Set.of(operatorRole);
 
         usuario.setRoles(roles);
         usuarioRepository.save(usuario);

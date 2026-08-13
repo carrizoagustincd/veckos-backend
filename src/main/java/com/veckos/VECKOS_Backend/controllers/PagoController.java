@@ -22,7 +22,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pagos")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class PagoController {
 
     @Autowired
@@ -35,6 +34,7 @@ public class PagoController {
     private CuentaService cuentaService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<PagoInfoDto>> getAllPagos() {
         List<Pago> pagos = pagoService.findAll();
         List<PagoInfoDto> response = pagos.stream().map(PagoInfoDto::new).toList();
@@ -42,6 +42,7 @@ public class PagoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<PagoInfoDto> getPagoById(@PathVariable Long id) {
         Pago pago = pagoService.findById(id);
         PagoInfoDto response = new PagoInfoDto(pago);
@@ -49,6 +50,7 @@ public class PagoController {
     }
 
     @GetMapping("/inscripcion/{inscripcionId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<PagoInfoDto>> getPagosByInscripcionId(@PathVariable Long inscripcionId) {
         List<Pago> pagos = pagoService.findByInscripcionId(inscripcionId);
         List<PagoInfoDto> response = pagos.stream().map(PagoInfoDto::new).toList();
@@ -56,6 +58,7 @@ public class PagoController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<PagoInfoDto>> getPagosByUsuarioId(@PathVariable Long usuarioId) {
         List<Pago> pagos = pagoService.findByUsuarioId(usuarioId);
         List<PagoInfoDto> response = pagos.stream().map(PagoInfoDto::new).toList();
@@ -63,6 +66,7 @@ public class PagoController {
     }
 
     @GetMapping("/periodo")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<PagoInfoDto>> getPagosByPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
@@ -72,6 +76,7 @@ public class PagoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<PagoInfoDto> registrarPago(@Valid @RequestBody PagoCrearDto pagoDto) {
         // Validar que exista la inscripción
         inscripcionService.findById(pagoDto.getInscripcionId());
@@ -81,7 +86,7 @@ public class PagoController {
         pago.setMonto(pagoDto.getMonto());
         pago.setFechaPago(pagoDto.getFechaPago() != null ? pagoDto.getFechaPago() : LocalDate.now());
         pago.setMetodoPago(pagoDto.getMetodoPago());
-        if(pago.getMetodoPago().equals(Pago.MetodoPago.TRANSFERENCIA)){
+        if (Pago.MetodoPago.TRANSFERENCIA.equals(pago.getMetodoPago())) {
             Cuenta cuenta = cuentaService.obtenerCuentaPorId(pagoDto.getCuentaId());
             pago.setCuenta(cuenta);
         }
@@ -94,6 +99,7 @@ public class PagoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<PagoInfoDto> updatePago(
             @PathVariable Long id,
             @Valid @RequestBody PagoCrearDto pagoDto) {
@@ -105,7 +111,7 @@ public class PagoController {
         pago.setMetodoPago(pagoDto.getMetodoPago());
         pago.setDescripcion(pagoDto.getDescripcion());
 
-        if(pago.getMetodoPago().equals(Pago.MetodoPago.TRANSFERENCIA)){
+        if (Pago.MetodoPago.TRANSFERENCIA.equals(pago.getMetodoPago())) {
             Cuenta cuenta = cuentaService.obtenerCuentaPorId(pagoDto.getCuentaId());
             pago.setCuenta(cuenta);
         }else{
@@ -117,12 +123,14 @@ public class PagoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deletePago(@PathVariable Long id) {
         pagoService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/estadisticas/periodo/suma")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<BigDecimal> getSumaPagosPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
@@ -131,6 +139,7 @@ public class PagoController {
     }
 
     @GetMapping("/estadisticas/periodo/metodo-pago")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Object[]>> getEstadisticasPorMetodoPago(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
@@ -139,6 +148,7 @@ public class PagoController {
     }
 
     @GetMapping("/estadisticas/periodo/mensual")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Object[]>> getEstadisticasMensuales(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {

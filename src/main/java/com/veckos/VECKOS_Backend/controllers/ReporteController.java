@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/reportes")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class ReporteController {
 
     @Autowired
@@ -54,6 +53,7 @@ public class ReporteController {
     private UsuarioService usuarioService;
 
     @PostMapping("/asistencia")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<?> generarReporteAsistencia(@RequestBody ReporteAsistenciaRequestDto requestDto) {
         if(requestDto.getUsuarioId()!=null){
             ReporteAsistenciaIndividualDto reporte = reporteService.generarReporteAsistenciaIndividual(requestDto);
@@ -65,6 +65,7 @@ public class ReporteController {
     }
 
     @GetMapping("/financiero")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ReporteFinancieroDto> generarReporteFinanciero(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin,
@@ -77,6 +78,7 @@ public class ReporteController {
     }
 
     @GetMapping("/financiero/excel/periodo")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<byte[]> exportarPagosPorPeriodoExcel(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
@@ -96,6 +98,7 @@ public class ReporteController {
     }
 
     @GetMapping("/inscripciones")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<?> generarReporteInscripciones(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
@@ -129,6 +132,7 @@ public class ReporteController {
     }
 
     @GetMapping("/dashboard/stats")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<?> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
         LocalDate hoy = LocalDate.now();

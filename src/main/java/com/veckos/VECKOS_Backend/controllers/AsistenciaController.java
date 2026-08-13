@@ -17,13 +17,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/asistencias")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class AsistenciaController {
 
     @Autowired
     private AsistenciaService asistenciaService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<AsistenciaInfoDto>> getAllAsistencias() {
         List<Asistencia> asistencias = asistenciaService.findAll();
         List<AsistenciaInfoDto> response = asistencias.stream()
@@ -32,6 +32,7 @@ public class AsistenciaController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<AsistenciaInfoDto> getAsistenciaById(@PathVariable Long id) {
         Asistencia asistencia = asistenciaService.findById(id);
         AsistenciaInfoDto asistenciaInfoDto = new AsistenciaInfoDto(asistencia);
@@ -39,6 +40,7 @@ public class AsistenciaController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<AsistenciaInfoDto>> getAsistenciasByUsuarioId(@PathVariable Long usuarioId) {
         List<Asistencia> asistencias = asistenciaService.findByUsuarioId(usuarioId);
         List<AsistenciaInfoDto> response = asistencias.stream()
@@ -47,6 +49,7 @@ public class AsistenciaController {
     }
 
     @GetMapping("/clase/{claseId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<AsistenciaInfoDto>> getAsistenciasByClaseId(@PathVariable Long claseId) {
         List<Asistencia> asistencias = asistenciaService.findByClaseId(claseId);
         List<AsistenciaInfoDto> response = asistencias.stream()
@@ -55,6 +58,7 @@ public class AsistenciaController {
     }
 
     @GetMapping("/usuario/{usuarioId}/fecha")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<AsistenciaInfoDto>> getAsistenciasByUsuarioIdAndFecha(
             @PathVariable Long usuarioId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
@@ -66,6 +70,7 @@ public class AsistenciaController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<AsistenciaInfoDto> registrarAsistencia(@Valid @RequestBody AsistenciaRegistrarDto asistenciaDto) {
         Asistencia asistencia = asistenciaService.registrarAsistencia(
                 asistenciaDto.getClaseId(),
@@ -76,6 +81,7 @@ public class AsistenciaController {
     }
 
     @PostMapping("/clase/{claseId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<AsistenciaInfoDto>> registrarAsistenciasPorClase(
             @PathVariable Long claseId,
             @RequestBody List<Long> usuariosPresentes) {
@@ -86,12 +92,14 @@ public class AsistenciaController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteAsistencia(@PathVariable Long id) {
         asistenciaService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/estadisticas/usuario/{usuarioId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<Long> getEstadisticasAsistenciaUsuario(
             @PathVariable Long usuarioId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
@@ -102,6 +110,7 @@ public class AsistenciaController {
     }
 
     @GetMapping("/ranking")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Object[]>> getRankingUsuariosPorAsistencia(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {

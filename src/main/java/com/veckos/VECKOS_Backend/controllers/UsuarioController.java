@@ -20,13 +20,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/usuarios")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class UsuarioController {
 
     @Autowired
     private UsuarioService usuarioService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<UsuarioListItemDto>> getAllUsuarios() {
         List<Usuario> usuarios = usuarioService.findAll();
         List<UsuarioListItemDto> usuariosDto = usuarios.stream()
@@ -36,6 +36,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/activos")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<UsuarioDto>> getUsuariosActivos() {
         List<Usuario> usuarios = usuarioService.buscarUsuariosActivos();
         List<UsuarioDto> usuariosDto = usuarios.stream()
@@ -45,6 +46,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/pendientes")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<UsuarioDto>> getUsuariosPendientes() {
         List<Usuario> usuarios = usuarioService.buscarUsuariosPendientes();
         List<UsuarioDto> usuariosDto = usuarios.stream()
@@ -54,6 +56,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<UsuarioDetalleDto> getUsuarioById(@PathVariable Long id) {
         Usuario usuario = usuarioService.findById(id);
         if(usuario.getInscripciones().size() > 0){
@@ -77,6 +80,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/buscar")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<UsuarioDto>> buscarUsuarios(@RequestParam String termino) {
         List<Usuario> usuarios = usuarioService.buscarPorTermino(termino);
         List<UsuarioDto> usuariosDto = usuarios.stream()
@@ -86,6 +90,7 @@ public class UsuarioController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioDto> createUsuario(@Valid @RequestBody UsuarioDto usuarioDto) {
         // Verificar si ya existe un usuario con el mismo DNI
         if (usuarioService.existsByDni(usuarioDto.getDni())) {
@@ -98,6 +103,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<UsuarioDto> updateUsuario(
             @PathVariable Long id,
             @Valid @RequestBody UsuarioDto usuarioDto) {
@@ -108,6 +114,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
         usuarioService.deleteById(id);
         return ResponseEntity.noContent().build();

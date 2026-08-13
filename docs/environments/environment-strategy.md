@@ -106,6 +106,12 @@ Debe contener:
 - integracion con contenedores o base efimera
 - tiempos y logging aptos para CI
 
+## Estado Actual Transitorio
+- El proyecto todavia no tiene una estrategia de test definitiva con `Testcontainers`.
+- Como medida transitoria de saneamiento, los tests actuales usan el perfil `dev` con SQLite para evitar dependencia de variables de entorno rotas.
+- El perfil `dev` sigue siendo transitorio y hoy usa SQLite para desarrollo local autocontenido.
+- Esta solucion es temporal y debe reemplazarse en la fase de plataforma y entornos por una estrategia de pruebas reproducible basada en PostgreSQL.
+
 ### application-prod.yml
 Debe contener:
 - configuracion endurecida

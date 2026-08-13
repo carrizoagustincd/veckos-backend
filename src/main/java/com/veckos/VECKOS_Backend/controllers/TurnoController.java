@@ -18,13 +18,13 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/turnos")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class TurnoController {
 
     @Autowired
     private TurnoService turnoService;
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<TurnoDto>> getAllTurnos() {
         List<Turno> turnos = turnoService.findAll();
         List<TurnoDto> turnosDto = turnos.stream()
@@ -34,12 +34,14 @@ public class TurnoController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<TurnoDto> getTurnoById(@PathVariable Long id) {
         Turno turno = turnoService.findById(id);
         return ResponseEntity.ok(convertToDto(turno));
     }
 
     @GetMapping("/por-dia/{diaSemana}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<TurnoDto>> getTurnosByDiaSemana(@PathVariable DayOfWeek diaSemana) {
         List<Turno> turnos = turnoService.findByDiaSemanaOrderByHoraAsc(diaSemana);
         List<TurnoDto> turnosDto = turnos.stream()
@@ -49,6 +51,7 @@ public class TurnoController {
     }
 
     @GetMapping("/con-usuarios/{diaSemana}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<TurnoConUsuariosDto>> getTurnosConUsuariosByDiaSemana(@PathVariable DayOfWeek diaSemana) {
         List<Turno> turnos = turnoService.findTurnosByDiaSemanaConUsuarios(diaSemana);
         List<TurnoConUsuariosDto> response = turnos.stream().map(TurnoConUsuariosDto::new).toList();
@@ -56,6 +59,7 @@ public class TurnoController {
     }
 
     @GetMapping("/por-ocupacion")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('OPERADOR')")
     public ResponseEntity<List<TurnoDto>> getTurnosByOcupacion() {
         List<Turno> turnos = turnoService.findAllOrderByOcupacion();
         List<TurnoDto> turnosDto = turnos.stream()
@@ -65,6 +69,7 @@ public class TurnoController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createTurno(@Valid @RequestBody TurnoDto turnoDto) {
         try {
             Turno turno = convertToEntity(turnoDto);
@@ -79,6 +84,7 @@ public class TurnoController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> updateTurno(
             @PathVariable Long id,
             @Valid @RequestBody TurnoDto turnoDto) {
@@ -96,6 +102,7 @@ public class TurnoController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> deleteTurno(@PathVariable Long id) {
         try {
             turnoService.deleteById(id);

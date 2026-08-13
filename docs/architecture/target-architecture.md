@@ -5,7 +5,7 @@ Definir la arquitectura objetivo de `veckos-backend` para soportar un dominio mu
 
 ## Principios
 - arquitectura modular por dominio, no solo por tipo tecnico
-- entidades JPA no expuestas como contratos API
+- el dominio no debe acoplarse a entidades JPA ni a contratos de persistencia implicitos
 - casos de uso explicitos en capa de aplicacion
 - aislamiento estricto por `tenant_id`
 - trazabilidad de decisiones mediante ADRs
@@ -38,17 +38,18 @@ Cada modulo deberia separar responsabilidades en capas internas:
   - value objects
   - reglas de negocio
 - `infrastructure`
-  - implementaciones JPA
   - repositories concretos
+  - implementaciones con jOOQ
+  - implementaciones puntuales con JDBC
   - adaptadores externos
 
 ## Reglas Arquitectonicas
 - controllers sin logica de negocio relevante
 - reglas criticas de negocio en `application` y `domain`
-- entidades JPA sin anotaciones o comportamiento orientado a serializacion HTTP
+- no exponer detalles de persistencia en contratos API
 - uso de DTOs tipados para toda respuesta publica
 - no usar `Object[]` en contratos internos ni externos
-- no usar `@Data` en entidades persistentes
+- no basar el nuevo dominio en entidades JPA/Hibernate
 
 ## Multi-Tenancy
 ### Estrategia Inicial
@@ -65,6 +66,8 @@ Cada modulo deberia separar responsabilidades en capas internas:
 - usar PostgreSQL como base principal objetivo
 - introducir `Flyway` para migraciones versionadas
 - prohibir dependencia de `ddl-auto=update` fuera de desarrollo local controlado
+- usar `jOOQ` como tecnologia principal de acceso a datos en el nuevo dominio
+- permitir `JDBC` en casos puntuales donde aporte simplicidad o performance con justificacion tecnica
 
 ## Errores Y Observabilidad
 - centralizar errores con `@ControllerAdvice`
